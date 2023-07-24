@@ -1,7 +1,6 @@
 package com.mvc.repository;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,24 +9,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.mvc.common.DBCon;
+
 public class MovieInfoRepository {
 
 	public List<Map<String, String>> selectMovieInfoList(){
-		String driverName = "org.mariadb.jdbc.Driver";
-		String url = "jdbc:mariadb://localhost:3306/kd";
-		String user = "root";
-		String pwd = "kd1824java";
-		
-		try {
-			Class.forName(driverName);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+
 		
 		List<Map<String, String>> movieInfoList = new ArrayList<>();
 		
 		try {
-			Connection con = DriverManager.getConnection(url, user, pwd);
+			Connection con = DBCon.getCon();
 			
 			String sql = "SELECT * FROM MOVIE_INFO WHERE 1=1";
 			PreparedStatement ps = con.prepareStatement(sql);
@@ -54,19 +46,9 @@ public class MovieInfoRepository {
 	}
 	
 	public Map<String, String> selectMovieInfo(String miNum){
-		String driverName = "org.mariadb.jdbc.Driver";
-		String url = "jdbc:mariadb://localhost:3306/kd";
-		String user = "root";
-		String pwd = "kd1824java";
 		
 		try {
-			Class.forName(driverName);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		try {
-			Connection con = DriverManager.getConnection(url, user, pwd);
+			Connection con = DBCon.getCon();
 			
 			String sql = "SELECT * FROM MOVIE_INFO WHERE 1=1 AND MI_NUM=?";
 			PreparedStatement ps = con.prepareStatement(sql);
@@ -91,5 +73,25 @@ public class MovieInfoRepository {
 		}
 		
 		return null;
+	}
+	
+	public int insertMovieInfo(Map<String, String> movieInfo) {
+		String sql = "INSERT INTO MOVIE_INFO(MI_TITLE, MI_DESC, MI_GENRE, MI_CNT)";
+		sql += "VALUES(?, ?, ?, ?)";
+		Connection con = DBCon.getCon();
+		
+		try {
+			PreparedStatement ps = con.prepareStatement(sql);
+			ps.setString(1, movieInfo.get("miTitle"));
+			ps.setString(2, movieInfo.get("miDesc"));
+			ps.setString(3, movieInfo.get("miGenre"));
+			ps.setString(4, movieInfo.get("miCnt"));
+			
+			return ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return 0;
 	}
 }
